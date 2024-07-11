@@ -1,16 +1,15 @@
-let T_H = 500;  // High temperature in Kelvin
-let T_C = 300;  // Low temperature in Kelvin
-let V_1 = 0.1;  // Initial volume in m^3
-let V_2 = 0.4;  // Volume after isothermal expansion in m^3
+let T_H = 500; // High temperature in Kelvin
+let T_C = 300; // Low temperature in Kelvin
+let V_1 = 0.1; // Initial volume in m^3
+let V_2 = 0.2; // Volume after isothermal expansion in m^3
 let V_3, V_4;
-let n = 1.0;    // Amount of gas in moles
-let R = 8.314;  // Universal gas constant in J/(mol K)
+let n = 1.0; // Amount of gas in moles
+let R = 8.314; // Universal gas constant in J/(mol K)
 let gamma = 1.4; // Ratio of heat capacities
-let t_f = 10;   // Total time for the process in seconds
+let t_f = 10; // Total time for the process in seconds
 
 let currentTime = 0; // Current time in the simulation
 let currentStep = 0; // Current step in the Carnot cycle
-
 
 const STEPS = {
     step1: 0,
@@ -40,7 +39,6 @@ function draw() {
 
     let currentVolume;
     let currentTemperature;
- 
 
     switch (currentStep) {
         case STEPS.step1:
@@ -51,8 +49,13 @@ function draw() {
         case STEPS.step2:
             // Step 2: Adiabatic expansion from T_H to T_C
             V_3 = V_2 * Math.pow(T_H / T_C, 1 / (gamma - 1));
-            currentVolume = adiabaticVolume(V_2, V_3, stepDuration, currentTime);
-            currentTemperature = T_H * Math.pow(currentVolume / V_3, gamma - 1);
+            currentVolume = adiabaticVolume(
+                V_2,
+                V_3,
+                stepDuration,
+                currentTime
+            );
+            currentTemperature = T_C * Math.pow(V_3 / currentVolume, gamma - 1);
             break;
         case STEPS.step3:
             // Step 3: Isothermal compression at T_C
@@ -62,7 +65,12 @@ function draw() {
             break;
         case STEPS.step4:
             // Step 4: Adiabatic compression from T_C to T_H
-            currentVolume = adiabaticVolume(V_4, V_1, stepDuration, currentTime);
+            currentVolume = adiabaticVolume(
+                V_4,
+                V_1,
+                stepDuration,
+                currentTime
+            );
             currentTemperature = T_C * Math.pow(V_4 / currentVolume, gamma - 1);
             console.log(currentVolume, currentTemperature);
             break;
@@ -71,16 +79,18 @@ function draw() {
     }
 
     // Map the volume to rectangle size
-    let rectWidth = map(currentVolume, 0, 1, 100, 400);
+    let rectWidth = map(currentVolume, 0, 2, 100, 400);
 
     // Map the temperature to color
-    let colorValue = map(currentTemperature, 0, 1000, 0, 255);
+    let colorValue = map(currentTemperature, 300, 501, 0, 255);
     let rectColor = color(colorValue, 0, 255 - colorValue);
 
     // Draw the rectangle
     fill(rectColor);
     rect(width / 2, height / 2, 50, -rectWidth);
     text(`Step ${currentStep + 1}`, width / 2, height / 2 + 50);
+    text(`V = ${currentVolume}`, width / 2 + 60, height / 4);
+    text(`T = ${currentTemperature}`, width / 2 + 60, height / 4 + 10);
 }
 
 function volumeOverTime(V_start, V_end, duration, time) {
